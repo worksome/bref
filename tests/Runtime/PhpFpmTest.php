@@ -837,6 +837,14 @@ Year,Make,Model
         ], $response['headers']);
     }
 
+    public function test response with binary data is auto encoded in base64()
+    {
+        $response = $this->get('binary.php')->toApiGatewayFormat();
+
+        self::assertTrue($response['isBase64Encoded']);
+        self::assertEquals("\xB1\x31", base64_decode($response['body'], true));
+    }
+
     /**
      * Checks that a timeout cause by the PHP-FPM limit (not the Lambda limit) can be recovered from
      */

@@ -67,13 +67,20 @@ final class LambdaResponse
         // Support for multi-value headers
         $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
 
+        $isBase64Encoded = false;
+        $body = $this->body;
+        if (json_encode($body) === false) {
+            $isBase64Encoded = true;
+            $body = base64_encode($body);
+        }
+
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
         return [
-            'isBase64Encoded' => false,
+            'isBase64Encoded' => $isBase64Encoded,
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
-            'body' => $this->body,
+            'body' => $body,
         ];
     }
 }
