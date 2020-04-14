@@ -3,7 +3,7 @@ name: Deploy Docker images
 on:
   push:
     branches:
-      - master
+      - test-docker
     tags:
       - '*' # On all tags
 
