@@ -2,6 +2,8 @@ name: Deploy Docker images
 
 on:
   push:
+    branches:
+      - master
     tags:
       - '*' # On all tags
 
