@@ -130,17 +130,12 @@ RUN /tmp/clean.sh && rm /tmp/clean.sh
 # We get rid of everything that is unnecessary (build tools, source code, and anything else
 # that might have created intermediate layers for docker) by copying online the /opt directory.
 FROM public.ecr.aws/lambda/provided:al2
-ENV PATH="/opt/bin:${PATH}" \
+
+ENV PATH="/opt/bin:/usr/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/bref/lib64:/opt/bref/lib"
 
 # Copy everything we built above into the same dir on the base AmazonLinux container.
 COPY --from=build-environment-cleaned /opt /opt
-
-# We need a few low level dependencies for git to run.
-RUN yum install -y unzip git
-
-# Let's grab composer from the official composer image.
-COPY --from=composer /usr/bin/composer /opt/bin/composer
 
 # Set the workdir to the same directory as in AWS Lambda
 WORKDIR /var/task

@@ -7,18 +7,8 @@ declare(strict_types=1);
 
 // All layers
 $allLayers = [
-    'bref/php-73',
-    'bref/php-74',
     'bref/php-80',
     'bref/php-81',
-    'bref/php-73-fpm',
-    'bref/php-74-fpm',
-    'bref/php-80-fpm',
-    'bref/php-81-fpm',
-    'bref/php-73-fpm-dev',
-    'bref/php-74-fpm-dev',
-    'bref/php-80-fpm-dev',
-    'bref/php-81-fpm-dev',
 ];
 foreach ($allLayers as $layer) {
     // Working directory
@@ -31,6 +21,21 @@ foreach ($allLayers as $layer) {
     assertMatchesRegex('/PHP (7|8)\.\d+\.\d+/', $phpVersion);
     echo '.';
 
+    // Composer is installed correctly
+    $composerVersion = trim(`docker run --rm --entrypoint composer $layer -V`);
+    assertMatchesRegex('/Composer version 2\.\d+\.\d+.*/', $composerVersion);
+    echo '.';
+
+    // Git is installed correctly
+    $gitVersion = trim(`docker run --rm --entrypoint git $layer --version`);
+    assertMatchesRegex('/git version \d+\.\d+\.\d+/', $gitVersion);
+    echo '.';
+
+    // Unzip is installed correctly
+    $unzipVersion = trim(`docker run --rm --entrypoint unzip $layer`);
+    assertMatchesRegex('/UnZip \d+\.\d+ .*/', $unzipVersion);
+    echo '.';
+
     // Test extensions load correctly
     // Skip this for PHP 8.0 and 8.1 until all extensions are supported
     if (strpos($layer, 'php-8') === false) {
@@ -40,47 +45,6 @@ foreach ($allLayers as $layer) {
         }
         echo '.';
     }
-}
-
-// FPM layers
-$fpmLayers = [
-    'bref/php-73-fpm',
-    'bref/php-74-fpm',
-    'bref/php-80-fpm',
-    'bref/php-81-fpm',
-    'bref/php-73-fpm-dev',
-    'bref/php-74-fpm-dev',
-    'bref/php-80-fpm-dev',
-    'bref/php-81-fpm-dev',
-];
-foreach ($fpmLayers as $layer) {
-    // PHP-FPM is installed
-    $phpVersion = trim(`docker run --rm --entrypoint php-fpm $layer -v`);
-    assertMatchesRegex('/PHP (7|8)\.\d+\.\d+/', $phpVersion);
-    echo '.';
-}
-
-// dev layers
-$devLayers = [
-    'bref/php-73-fpm-dev',
-    'bref/php-74-fpm-dev',
-    'bref/php-80-fpm-dev',
-    'bref/php-81-fpm-dev',
-];
-$devExtensions = [
-    'xdebug',
-    'blackfire',
-];
-foreach ($devLayers as $layer) {
-    exec("docker run --rm -v \${PWD}/helpers:/var/task/ --entrypoint php $layer -m", $output, $exitCode);
-    $notLoaded = array_diff($devExtensions, $output);
-    // all development extensions are loaded
-    if ($exitCode !== 0 || count($notLoaded) > 0) {
-        throw new Exception(implode(PHP_EOL, array_map(function ($extension) {
-            return "Extension $extension is not loaded";
-        }, $notLoaded)), $exitCode);
-    }
-    echo '.';
 }
 
 echo "\nTests passed\n";

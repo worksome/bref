@@ -73,6 +73,7 @@ RUN mkdir -p ${BUILD_DIR}  \
     ${INSTALL_DIR}/sbin \
     ${INSTALL_DIR}/share
 
+RUN yum install -y unzip && cp /usr/bin/unzip ${INSTALL_DIR}/bin
 
 ###############################################################################
 # ZLIB Build
@@ -395,6 +396,31 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/interfaces/libpq && make -j $(nproc) &
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/bin/pg_config && make -j $(nproc) && make install
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/backend && make generated-headers
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
+
+###############################################################################
+# Git Build
+# https://github.com/git/git/tags
+ENV VERSION_GIT=2.37.0
+ENV GIT_BUILD_DIR=${BUILD_DIR}/git
+
+RUN set -xe; \
+    mkdir -p ${GIT_BUILD_DIR}/bin; \
+    curl -Ls https://github.com/git/git/archive/refs/tags/v${VERSION_GIT}.tar.gz \
+    | tar xzC ${GIT_BUILD_DIR} --strip-components=1
+
+WORKDIR  ${GIT_BUILD_DIR}/
+
+RUN set -xe; \
+    make configure
+
+RUN set -xe; \
+    CFLAGS="" \
+    CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
+    ./configure --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make install
 
 # Install some dev files for using old libraries already on the system
 # readline-devel : needed for the --with-libedit flag

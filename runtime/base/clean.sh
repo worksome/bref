@@ -16,8 +16,8 @@ find /opt/bref -type f -name "*.dist"|xargs rm
 find /opt/bref -type f -executable -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; -print|xargs strip --strip-all
 
 # Cleanup all the binaries we don't want.
-find /opt/bref/bin -mindepth 1 -maxdepth 1 ! -name "php" ! -name "php-fpm" -exec rm {} \+
-find /opt/bin -mindepth 1 -maxdepth 1 ! -name "php" ! -name "php-fpm" -exec rm {} \+
+find /opt/bref/bin -mindepth 1 -maxdepth 1 ! -name "php" ! -name "php-fpm" ! -name "git" ! -name "unzip" -exec rm {} \+
+find /opt/bin -mindepth 1 -maxdepth 1 ! -name "php" ! -name "php-fpm" ! -name "git" ! -name "unzip" -exec rm {} \+
 
 # Cleanup all the files we don't want either
 # We do not support running pear functions in Lambda

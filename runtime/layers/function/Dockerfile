@@ -14,3 +14,6 @@ FROM public.ecr.aws/lambda/provided:al2
 COPY --from=0 /opt /opt
 # Copy files to /var/runtime to support deploying as a Docker image
 RUN cp /opt/bootstrap /var/runtime
+
+# Let's grab composer from the official composer image.
+COPY --from=composer /usr/bin/composer /opt/bin/composer
