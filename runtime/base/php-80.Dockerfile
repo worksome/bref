@@ -136,5 +136,11 @@ ENV PATH="/opt/bin:${PATH}" \
 # Copy everything we built above into the same dir on the base AmazonLinux container.
 COPY --from=build-environment-cleaned /opt /opt
 
+# We need a few low level dependencies for git to run.
+RUN yum install -y unzip git
+
+# Let's grab composer from the official composer image.
+COPY --from=composer /usr/bin/composer /opt/bin/composer
+
 # Set the workdir to the same directory as in AWS Lambda
 WORKDIR /var/task
