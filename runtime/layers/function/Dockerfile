@@ -5,6 +5,7 @@ COPY bootstrap /opt/bootstrap
 COPY bootstrap.php /opt/bref/bootstrap.php
 COPY breftoolbox.php /opt/bref/breftoolbox.php
 COPY php.ini /opt/bref/etc/php/conf.d/bref.ini
+COPY gitconfig /opt/bref/etc/gitconfig
 
 # Remove PHP-FPM
 RUN rm /opt/bref/sbin/php-fpm /opt/bin/php-fpm

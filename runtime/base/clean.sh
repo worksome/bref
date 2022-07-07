@@ -40,6 +40,8 @@ rm -rf /opt/bref/man
 rm -rf /opt/bref/php/man
 rm -rf /opt/bref/www
 rm -rf /opt/bref/cfg
-rm -rf /opt/bref/libexec
 rm -rf /opt/bref/var
 rm -rf /opt/bref/data
+
+# We need to keep a subset of git utilities available, so we'll make sure not to delete them.
+find /opt/bref/libexec/git-core -mindepth 1 -maxdepth 1 ! -name "git-checkout" ! -name "git-checkout--worker" ! -name "git-clone" ! -name "git-fetch" ! -name "git-fetch-pack" ! -name "git-remote" ! -name "git-remote-http" ! -name "git-remote-https" -exec rm -rf {} \+

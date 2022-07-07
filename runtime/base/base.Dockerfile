@@ -21,7 +21,9 @@ RUN set -xe \
     # Download yum repository data to cache
  && yum makecache \
     # Default Development Tools
- && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default
+ && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default \
+    # Tools required for a working build of git
+ && yum install -y dh-autoreconf curl-devel expat-devel gettext-devel openssl-devel perl-devel zlib-devel libcurl-devel
 
 
 # The default version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of
@@ -420,6 +422,7 @@ RUN set -xe; \
     ./configure --prefix=${INSTALL_DIR}
 
 RUN set -xe; \
+    make all; \
     make install
 
 # Install some dev files for using old libraries already on the system
