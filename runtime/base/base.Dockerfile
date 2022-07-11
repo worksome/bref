@@ -113,6 +113,76 @@ RUN set -xe; \
  && rm ${INSTALL_DIR}/lib/libz.a
 
 ###############################################################################
+# Libjpeg
+# https://github.com/glennrp/libpng
+# Needed by:
+#   - php
+
+ENV VERSION_LIBJPEG=v9e
+ENV LIBJPEG_BUILD_DIR=${BUILD_DIR}/libjpeg
+
+RUN set -xe; \
+    mkdir -p ${LIBJPEG_BUILD_DIR}/bin; \
+    curl -Ls http://www.ijg.org/files/jpegsrc.${VERSION_LIBJPEG}.tar.gz \
+    | tar xzC ${LIBJPEG_BUILD_DIR} --strip-components=1
+
+WORKDIR  ${LIBJPEG_BUILD_DIR}/
+
+RUN set -xe; \
+    CFLAGS="" \
+    CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
+    ./configure \
+        --prefix=${INSTALL_DIR} \
+        --enable-shared \
+        --disable-static
+
+RUN set -xe; \
+    make install
+
+###############################################################################
+# Libpng
+# https://github.com/glennrp/libpng
+# Needed by:
+#   - php
+
+ENV VERSION_LIBPNG=1.6.35
+ENV LIBPNG_BUILD_DIR=${BUILD_DIR}/libpng
+
+RUN set -xe; \
+    mkdir -p ${LIBPNG_BUILD_DIR}; \
+  # Download and unpack the source code
+    curl -Ls  https://github.com/glennrp/libpng/archive/refs/tags/v${VERSION_LIBPNG}.tar.gz \
+  | tar xzC ${LIBPNG_BUILD_DIR} --strip-components=1
+
+# Move into the unpackaged code directory
+WORKDIR  ${LIBPNG_BUILD_DIR}/
+
+# Configure the cleaner
+RUN set -xe; \
+    ./configure \
+    --enable-maintainer-mode
+
+RUN set -xe; \
+    make maintainer-clean
+
+RUN set -xe; \
+    ./autogen.sh --maintainer --clean \
+    && ./autogen.sh --maintainer
+
+# Configure the build
+RUN set -xe; \
+    CFLAGS="" \
+    CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
+    ./configure \
+    --enable-maintainer-mode \
+    --prefix=${INSTALL_DIR}
+
+RUN set -xe; \
+    make install
+
+###############################################################################
 # OPENSSL Build
 # https://github.com/openssl/openssl/releases
 # Needs:
